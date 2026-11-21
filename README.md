@@ -15,8 +15,9 @@ what modelling that dependence adds, in Bcf, to a probabilistic forecast that
 is already well calibrated at the national level — and, if the answer is
 "almost nothing", how tightly the data bound it.
 
-By **Antonio Mosca**. Status: **M1 (real-time information set)** done; next, the national
-benchmark and the scoring rules — see [the roadmap](docs/ROADMAP.md).
+By **Antonio Mosca**. Status: **M2 (national benchmark, scoring rules, blinded
+chronological evaluation)** done; next, the Monte Carlo models with and without
+spatial dependence — see [the roadmap](docs/ROADMAP.md).
 
 ## The experiment
 
@@ -24,25 +25,30 @@ Target: the net withdrawal from Lower-48 working gas between the issue Friday
 and the next Friday (EIA stocks at 09:00 Central), positive when stocks fall.
 Forecast origin: Friday 18:00 Eastern, using only what was public then.
 
+All models share a link from observed HDD to storage (month, holiday weeks,
+a quadratic in HDD, a persistent non-weather residual) and a non-weather error
+whose variance comes from out-of-sample errors; they differ only in how the
+weather-forecast error enters.
+
 | Model | Weather-error uncertainty |
 |---|---|
-| 1 | national regression on forecast HDD, season and the latest published EIA week |
-| 1b | historical national 7-day error trajectories |
-| 2 | historical error trajectories per division, drawn independently across divisions |
-| 3 | the same trajectories drawn jointly for the nine divisions |
+| 1 | national error Gaussian, mean and variance from recent forecast errors |
+| 1b | national 7-day errors drawn from the same recent days |
+| 2 | each division's 7-day error drawn from a different, independent day |
+| 3 | the nine division errors drawn from the same day |
 
 Models 2 and 3 share data, marginal error distributions, lead persistence and
 the HDD-to-storage link, so their difference isolates spatial dependence.
-Evaluation is chronological over whole winters (CRPS and 90% pinball loss),
-with nine evaluation winters fixed in advance and the 2026/27 winter logged
-live.
+Evaluation is chronological over whole winters (CRPS, 90% pinball loss and
+threshold-weighted CRPS), with nine evaluation winters fixed in advance and
+blinded in code, and the 2026/27 winter logged live.
 
 ## What the data look like (audit of 2026-11-20)
 
 | Source | Coverage | Caveats |
 |---|---|---|
 | NOAA CPC 7-day gas-weighted HDD bulletins | 4,707 issue days 2014-01-01 to 2026-11-20; 4,513 complete, 63 partial, 64 all `-9999`, 67 without data | 191 files rewritten in batches after issue (mainly Jan–Mar 2014, Jan–Apr 2020) |
-| NOAA CPC observed HDD | every day since 2013 | published about two days late; no revisions found in archived copies |
+| NOAA CPC observed HDD | every day since 2010 | published about two days late; no revisions found in archived copies |
 | EIA weekly storage, Lower 48 | every week since 2010 (latest), originals since 1993 | three-region structure until 2015-11-06; revisions of up to 10 Bcf on winter weekly changes |
 | EIA release schedule | 52 copies of the schedule page; 45 holiday exceptions 2013–2027 | only one report ever came out after the next Friday evening (Monday 2025-12-29) |
 
@@ -84,6 +90,30 @@ Forecast origin 2021-02-12 18:00 ET = 2021-02-12T23:00:00Z
   target S(2021-02-12) - S(2021-02-19): first release 338 Bcf, latest 338 Bcf, public 2021-02-25T10:30:00 ET
 ```
 
+### Model 1 and the evaluation
+
+```shell
+build/release/ccold forecast 2016-01-08        # model 1 at the origin (no outcome shown)
+build/release/ccold evaluate --out weeks.csv   # development winters 2014/15-2016/17
+```
+
+```text
+Model 1 (national benchmark) at 2016-01-08 18:00 ET
+  national HDD forecast 218.7 (division weights fitted on Jan 2010 - Sep 2012, rmse 0.288 HDD)
+  link: 164 training weeks, b1 0.496 Bcf/HDD, b2 29.987 Bcf per (100 HDD)^2, persistence c 0.947
+  E m(F + e) 176.2 Bcf, persistence 14.3 Bcf
+  sd: weather 10.8 Bcf (421 pooled issue days), non-weather 17.2 Bcf (103 out-of-sample weeks)
+  predictive N(190.5, 20.3^2) Bcf; 90% quantile 216.5 Bcf
+```
+
+On the 64 development Fridays model 1 has a CRPS of 11.9 Bcf, a 90% pinball
+loss of 4.0 Bcf and 55 outcomes at or below its 90% quantile (95% binomial
+band 53–62). Weather-forecast error is a minor part of the uncertainty: about
+11 Bcf of standard deviation against 17 Bcf for everything else, which is why
+the value of modelling its spatial dependence is expected to be small.
+`evaluate` refuses the evaluation winters until the design is tagged
+`prereg-v1`.
+
 ## Data
 
 The frozen inputs in `data/frozen` are what the C++ code reads; their hashes
@@ -101,7 +131,8 @@ Raw responses are not versioned; their provenance is in
 ## Layout
 
 ```text
-include/ccold/   public headers: time, io, calendar, data loaders, real-time information set
+include/ccold/   public headers: time, io, calendar, data loaders, real-time information set,
+                 stats, scoring rules, models, evaluation
 src/             library sources
 apps/ccold/      command-line interface
 tests/           unit, golden (real weeks) and property tests

@@ -118,9 +118,16 @@ Target RealTimeData::target(time::Date friday) const {
   t.friday = friday;
   t.first_release = first_release_withdrawal(end);
   t.latest = storage_.latest(friday) - storage_.latest(end);
-  t.known_at = calendar_.release_time(end);
+  t.known_at = report_public_at(end);
   t.crosses_structure_switch = data::structure_of(friday) != data::structure_of(end);
   return t;
+}
+
+time::Instant RealTimeData::report_public_at(time::Date week) const {
+  if (week < calendar::kFirstCalendarWeek) {
+    return time::to_utc(calendar::EiaReleaseCalendar::standard_release_et(week), time::UsZone::Eastern);
+  }
+  return calendar_.release_time(week);
 }
 
 std::vector<Target> RealTimeData::targets_known_at(time::Instant at, time::Date first_friday) const {

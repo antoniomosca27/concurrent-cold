@@ -65,7 +65,7 @@ TEST_CASE("NOAA bulletin values: Uri week and a partial file", "[golden][noaa]")
 
 TEST_CASE("NOAA observations: span, Uri week, availability lag", "[golden][noaa]") {
   const auto& o = observed();
-  CHECK(o.first_day() == parse_date("2013-01-01"));
+  CHECK(o.first_day() == parse_date("2010-01-01"));
   CHECK(o.last_day() == parse_date("2026-11-18"));
   int conus = 0;
   int wsc = 0;

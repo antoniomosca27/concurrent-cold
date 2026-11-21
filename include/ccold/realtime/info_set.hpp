@@ -78,6 +78,11 @@ class RealTimeData {
   [[nodiscard]] InfoSet info_set(time::Date friday, RewritePolicy policy = RewritePolicy::AcceptBatchRewrites) const;
 
   [[nodiscard]] Target target(time::Date friday) const;
+  // Release time of the report for reference Friday `week`. Weeks before the
+  // reconstructed calendar (calendar::kFirstCalendarWeek) follow the standard
+  // Thursday 10:30 Eastern rule; they enter only as training data, at origins
+  // from October 2012 on (see docs/DATA.md, pseudo-real-time elements).
+  [[nodiscard]] time::Instant report_public_at(time::Date week) const;
 
   // Targets of issue Fridays from `first_friday` on whose first release is public at `at`.
   [[nodiscard]] std::vector<Target> targets_known_at(time::Instant at, time::Date first_friday) const;

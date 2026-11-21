@@ -4,7 +4,7 @@
   "noaa": {
     "forecast_first_issue": "2014-01-01",
     "forecast_url": "https://ftp.cpc.ncep.noaa.gov/htdocs/degree_days/weighted/daily_forecasts_7day/{yyyy}/{mm}/{dd}/UtilityGas.Heating.txt",
-    "observed_first_year": 2013,
+    "observed_first_year": 2010,
     "observed_url": "https://ftp.cpc.ncep.noaa.gov/htdocs/degree_days/weighted/daily_data/{yyyy}/UtilityGas.Heating.txt",
     "reference_files": {
       "census_divisions": "https://ftp.cpc.ncep.noaa.gov/htdocs/degree_days/weighted/daily_data/regions/CensusDivisions.txt",

@@ -27,7 +27,14 @@ add_library(ccold_core
   src/data/regions.cpp
   src/data/noaa.cpp
   src/data/eia_storage.cpp
-  src/realtime/info_set.cpp)
+  src/realtime/info_set.cpp
+  src/stats/normal.cpp
+  src/stats/least_squares.cpp
+  src/scores/scores.cpp
+  src/model/national_index.cpp
+  src/model/link.cpp
+  src/model/national.cpp
+  src/eval/evaluation.cpp)
 add_library(ccold::core ALIAS ccold_core)
 target_include_directories(ccold_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_compile_features(ccold_core PUBLIC cxx_std_20)

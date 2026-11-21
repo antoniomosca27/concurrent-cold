@@ -91,10 +91,10 @@
   },
   "noaa_observed": {
     "dates": [
-      "2013-01-01",
+      "2010-01-01",
       "2026-11-18"
     ],
-    "n_days": 5070
+    "n_days": 6166
   },
   "noaa_regions": {
     "div1": "NEW ENGLAND",

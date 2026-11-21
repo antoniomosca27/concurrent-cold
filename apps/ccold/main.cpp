@@ -4,20 +4,32 @@
 //       what was public at the forecast origin (Friday 18:00 Eastern) and the target
 //   ccold dataset --out FILE [--from FRIDAY] [--to FRIDAY] [--strict] [--data DIR]
 //       one CSV row per Friday with the information set summary and the target
+//   ccold forecast FRIDAY [--strict] [--data DIR]
+//       model 1 (national benchmark) at the origin, without the realized target
+//   ccold evaluate [--from FRIDAY] [--to FRIDAY] [--strict] [--exclude-rewritten]
+//                  [--out FILE] [--unblind] [--data DIR]
+//       chronological evaluation of model 1; development winters by default,
+//       evaluation winters only with --unblind (after the prereg-v1 tag)
 //
 // --strict refuses NOAA bulletins rewritten after the fact (pseudo-real-time).
 
+#include <cmath>
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <optional>
+#include <set>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <vector>
 
+#include "ccold/eval/evaluation.hpp"
+#include "ccold/model/national.hpp"
 #include "ccold/realtime/info_set.hpp"
 
 namespace {
@@ -31,20 +43,27 @@ namespace t = ccold::time;
 constexpr const char* kUsage =
     "usage:\n"
     "  ccold availability FRIDAY [--strict] [--data DIR]\n"
-    "  ccold dataset --out FILE [--from FRIDAY] [--to FRIDAY] [--strict] [--data DIR]\n";
+    "  ccold dataset --out FILE [--from FRIDAY] [--to FRIDAY] [--strict] [--data DIR]\n"
+    "  ccold forecast FRIDAY [--strict] [--data DIR]\n"
+    "  ccold evaluate [--from FRIDAY] [--to FRIDAY] [--strict] [--exclude-rewritten] [--out FILE] [--unblind]\n"
+    "                 [--data DIR]\n";
 
 struct Options {
   std::vector<std::string> positional;
   std::map<std::string, std::string> values;  // --key value
+  std::set<std::string> flags;                // --flag
   bool strict = false;
 };
+
+bool is_flag(const std::string& name) { return name == "strict" || name == "unblind" || name == "exclude-rewritten"; }
 
 Options parse(const std::vector<std::string_view>& args) {
   Options o;
   for (std::size_t i = 0; i < args.size(); ++i) {
     const std::string a(args[i]);
-    if (a == "--strict") {
-      o.strict = true;
+    if (a.rfind("--", 0) == 0 && is_flag(a.substr(2))) {
+      o.flags.insert(a.substr(2));
+      o.strict = o.strict || a == "--strict";
     } else if (a.rfind("--", 0) == 0) {
       if (i + 1 >= args.size()) {
         throw std::invalid_argument("missing value for " + a);
@@ -173,6 +192,99 @@ int dataset(const Options& o) {
   return 0;
 }
 
+std::string fixed(double v, int digits) {
+  std::ostringstream s;
+  s << std::fixed << std::setprecision(digits) << v;
+  return s.str();
+}
+
+int forecast(const Options& o) {
+  if (o.positional.size() != 1) {
+    std::cerr << kUsage;
+    return 2;
+  }
+  const auto db = rt::RealTimeData::load(data_dir(o));
+  const t::Date friday = t::parse_date(o.positional[0]);
+  const ccold::model::NationalModel m(db, policy(o));
+  const auto f = m.forecast(friday);
+  std::cout << "Model 1 (national benchmark) at " << t::format_date(friday) << " 18:00 ET\n";
+  if (!f) {
+    std::cout << "  no forecast: the information set lacks some division forecasts\n";
+    return 1;
+  }
+  const auto& l = m.link(friday);
+  const auto& p = f->predictive;
+  std::cout << "  national HDD forecast " << fixed(f->forecast_hdd, 1)
+            << " (division weights fitted on Jan 2010 - Sep 2012, rmse " << fixed(m.weights().rmse, 3) << " HDD)\n"
+            << "  link: " << l.training().size() << " training weeks, b1 " << fixed(l.b1(), 3) << " Bcf/HDD, b2 "
+            << fixed(l.b2() * 1e4, 3) << " Bcf per (100 HDD)^2, persistence c " << fixed(l.persistence_coefficient(), 3)
+            << '\n'
+            << "  E m(F + e) " << fixed(f->link_mean, 1) << " Bcf, persistence " << fixed(f->persistence, 1) << " Bcf\n"
+            << "  sd: weather " << fixed(std::sqrt(f->weather_var), 1) << " Bcf (" << f->pool_size
+            << " pooled issue days), non-weather " << fixed(std::sqrt(f->nonweather_var), 1) << " Bcf ("
+            << f->nonweather_n << " out-of-sample weeks)\n"
+            << "  predictive N(" << fixed(p.mean, 1) << ", " << fixed(p.sd, 1) << "^2) Bcf; 90% quantile "
+            << fixed(ccold::scores::quantile(p, ccold::eval::kQuantileLevel), 1) << " Bcf\n";
+  return 0;
+}
+
+int evaluate(const Options& o) {
+  if (!o.positional.empty()) {
+    std::cerr << kUsage;
+    return 2;
+  }
+  const auto db = rt::RealTimeData::load(data_dir(o));
+  ccold::eval::Selection sel;
+  if (const auto it = o.values.find("from"); it != o.values.end()) {
+    sel.from = t::parse_date(it->second);
+  }
+  if (const auto it = o.values.find("to"); it != o.values.end()) {
+    sel.to = t::parse_date(it->second);
+  }
+  sel.exclude_rewritten = o.flags.count("exclude-rewritten") != 0;
+  sel.unblind = o.flags.count("unblind") != 0;
+  const ccold::model::NationalModel m(db, policy(o));
+  const double threshold = ccold::eval::twcrps_threshold(db);
+  const auto weeks = ccold::eval::evaluate_national(m, sel, threshold);
+  const auto summary = ccold::eval::summarize(weeks);
+
+  std::cout << "Model 1, Fridays " << t::format_date(sel.from) << " to " << t::format_date(sel.to) << ", "
+            << (o.strict ? "strict" : "accepting rewritten bulletins")
+            << (sel.exclude_rewritten ? ", rewritten weeks excluded" : "") << "; twCRPS above " << fixed(threshold, 1)
+            << " Bcf\n";
+  std::cout << "winter      n   CRPS  twCRPS  pin90  y<=q90 [95% band]  mean sd   rmse  CRPS(latest)  PIT deciles\n";
+  for (const auto& s : summary) {
+    std::cout << std::left << std::setw(8) << s.label << std::right << std::setw(5) << s.n << std::setw(7)
+              << fixed(s.crps, 2) << std::setw(8) << fixed(s.twcrps, 2) << std::setw(7) << fixed(s.pinball, 2)
+              << std::setw(8) << s.covered << " [" << s.band_lo << ", " << s.band_hi << "]" << std::setw(9)
+              << fixed(s.mean_sd, 1) << std::setw(7) << fixed(s.rmse, 1) << std::setw(14) << fixed(s.crps_latest, 2)
+              << "  ";
+    for (const auto c : s.pit_hist) {
+      std::cout << ' ' << c;
+    }
+    std::cout << '\n';
+  }
+  if (const auto it = o.values.find("out"); it != o.values.end()) {
+    std::ofstream out(it->second, std::ios::binary);
+    if (!out) {
+      throw std::runtime_error("cannot write " + it->second);
+    }
+    out << "friday,winter,rewritten,forecast_hdd,link_mean,persistence,weather_sd,nonweather_sd,pool_size,"
+           "nonweather_n,mean,sd,q90,y_first,y_latest,crps,twcrps,pinball90,pit,crps_latest\n";
+    for (const auto& w : weeks) {
+      const auto& f = w.forecast;
+      out << t::format_date(w.friday) << ',' << w.winter << ',' << int{w.rewritten} << ',' << fixed(f.forecast_hdd, 4)
+          << ',' << fixed(f.link_mean, 4) << ',' << fixed(f.persistence, 4) << ',' << fixed(std::sqrt(f.weather_var), 4)
+          << ',' << fixed(std::sqrt(f.nonweather_var), 4) << ',' << f.pool_size << ',' << f.nonweather_n << ','
+          << fixed(f.predictive.mean, 4) << ',' << fixed(f.predictive.sd, 4) << ',' << fixed(w.q90, 4) << ','
+          << w.y_first << ',' << w.y_latest << ',' << fixed(w.crps, 4) << ',' << fixed(w.twcrps, 4) << ','
+          << fixed(w.pinball, 4) << ',' << fixed(w.pit, 4) << ',' << fixed(w.crps_latest, 4) << '\n';
+    }
+    std::cout << "wrote " << weeks.size() << " weeks to " << it->second << '\n';
+  }
+  return 0;
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -188,6 +300,12 @@ int main(int argc, char** argv) {
     }
     if (args[0] == "dataset") {
       return dataset(o);
+    }
+    if (args[0] == "forecast") {
+      return forecast(o);
+    }
+    if (args[0] == "evaluate") {
+      return evaluate(o);
     }
     std::cerr << kUsage;
     return 2;

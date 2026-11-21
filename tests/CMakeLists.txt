@@ -15,9 +15,13 @@ add_executable(ccold_tests
   unit/test_csv.cpp
   unit/test_eia_release_rules.cpp
   unit/test_regions_and_fields.cpp
+  unit/test_normal.cpp
+  unit/test_least_squares.cpp
+  unit/test_scores.cpp
   golden/test_release_calendar_data.cpp
   golden/test_frozen_inputs.cpp
-  golden/test_info_set.cpp)
+  golden/test_info_set.cpp
+  golden/test_national_model.cpp)
 target_link_libraries(ccold_tests PRIVATE ccold::core Catch2::Catch2WithMain)
 target_compile_definitions(ccold_tests PRIVATE CCOLD_DATA_DIR="${CCOLD_DATA_DIR}")
 ccold_set_project_options(ccold_tests)

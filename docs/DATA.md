@@ -76,10 +76,19 @@ checks of archived observation files come from the feasibility audit of
 
 ### NOAA observations
 
-Complete daily series since 2013-01-01, no `-9999`. Three archived copies
-(January 2017, December 2024, March 2025) are identical to the current files
-on every common cell: no revisions detected, observations are treated as
-real-time with a two-day lag.
+Complete daily series since 2010-01-01, no `-9999` (the years 2010–2012 were
+added in M2 so that the link from HDD to storage is estimated on four winters
+before the first development winter; same product line and layout). Three
+archived copies (January 2017, December 2024, March 2025) are identical to the
+current files on every common cell: no revisions detected, observations are
+treated as real-time with a two-day lag.
+
+The CONUS column is a fixed weighted average of the nine divisions, rounded:
+least squares on January 2010 to September 2012 gives weights summing to one
+(New England 0.034, Middle Atlantic 0.157, East North Central 0.224, West
+North Central 0.088, South Atlantic 0.104, East South Central 0.045, West
+South Central 0.092, Mountain 0.086, Pacific 0.171) with an RMSE of 0.29 HDD,
+the size of the rounding. The models use this unrounded national index.
 
 ### EIA storage
 
@@ -173,3 +182,9 @@ deviation of 26.2 Bcf (audit: 1.78 and 25.8 on a slightly different sample).
    conservative.
 4. Release-calendar entries confirmed only by copies taken before the release
    date (`last_snapshot_after_release = 0`).
+5. EIA reports for weeks before the calendar's scope (up to the week ending
+   2013-10-25) are assumed released on the standard Thursday at 10:30 ET.
+   They enter only as training data of the links fitted at origins from
+   October 2012 to October 2013, which produce the out-of-sample non-weather
+   errors of those weeks (part of the non-weather variance); the October 2013
+   shutdown may have delayed two or three of them.
