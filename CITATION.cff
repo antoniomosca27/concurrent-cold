@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software or its frozen dataset, please cite it as below."
+type: software
+title: "concurrent-cold: the value of cross-regional dependence of weather-forecast errors for US natural gas storage forecasts"
+authors:
+  - family-names: Mosca
+    given-names: Antonio
+    orcid: "https://orcid.org/0009-0002-4023-4664"
+version: 0.1.0
+url: "https://github.com/antoniomosca27/concurrent-cold"
+repository-code: "https://github.com/antoniomosca27/concurrent-cold"
+license: MIT
+abstract: >-
+  Real-time reconstruction of the information available on Friday evening and
+  probabilistic forecasts of the weekly net withdrawal from US Lower-48 natural
+  gas storage, comparing a calibrated national model with regional Monte Carlo
+  models that sample NOAA forecast-error trajectories independently or jointly
+  across the nine Census divisions.
+keywords:
+  - natural gas storage
+  - probabilistic forecasting
+  - weather forecast errors
+  - spatial dependence
+  - real-time data
+  - Monte Carlo
+  - C++

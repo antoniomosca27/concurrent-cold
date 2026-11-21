@@ -1,0 +1,76 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 25, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": { "CCOLD_BUILD_TESTS": "ON" }
+    },
+    {
+      "name": "ninja",
+      "hidden": true,
+      "inherits": "base",
+      "generator": "Ninja"
+    },
+    {
+      "name": "dev",
+      "displayName": "Debug build for local development",
+      "inherits": "ninja",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "release",
+      "displayName": "Optimised build used for experiments",
+      "inherits": "ninja",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "ci-gcc",
+      "inherits": "ninja",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release", "CMAKE_CXX_COMPILER": "g++-14", "CCOLD_WARNINGS_AS_ERRORS": "ON" }
+    },
+    {
+      "name": "ci-clang",
+      "inherits": "ninja",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release", "CMAKE_CXX_COMPILER": "clang++-18", "CCOLD_WARNINGS_AS_ERRORS": "ON" }
+    },
+    {
+      "name": "ci-sanitize",
+      "inherits": "ninja",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug", "CMAKE_CXX_COMPILER": "clang++-18", "CCOLD_SANITIZE": "ON", "CCOLD_WARNINGS_AS_ERRORS": "ON" }
+    },
+    {
+      "name": "ci-msvc",
+      "inherits": "base",
+      "cacheVariables": { "CCOLD_WARNINGS_AS_ERRORS": "ON" },
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "dev", "configurePreset": "dev" },
+    { "name": "release", "configurePreset": "release" },
+    { "name": "ci-gcc", "configurePreset": "ci-gcc" },
+    { "name": "ci-clang", "configurePreset": "ci-clang" },
+    { "name": "ci-sanitize", "configurePreset": "ci-sanitize" },
+    { "name": "ci-msvc", "configurePreset": "ci-msvc", "configuration": "Release" }
+  ],
+  "testPresets": [
+    { "name": "base", "hidden": true, "output": { "outputOnFailure": true }, "execution": { "noTestsAction": "error" } },
+    { "name": "dev", "inherits": "base", "configurePreset": "dev" },
+    { "name": "release", "inherits": "base", "configurePreset": "release" },
+    { "name": "ci-gcc", "inherits": "base", "configurePreset": "ci-gcc" },
+    { "name": "ci-clang", "inherits": "base", "configurePreset": "ci-clang" },
+    { "name": "ci-sanitize", "inherits": "base", "configurePreset": "ci-sanitize" },
+    { "name": "ci-msvc", "inherits": "base", "configurePreset": "ci-msvc", "configuration": "Release" }
+  ],
+  "workflowPresets": [
+    { "name": "dev", "steps": [ { "type": "configure", "name": "dev" }, { "type": "build", "name": "dev" }, { "type": "test", "name": "dev" } ] },
+    { "name": "release", "steps": [ { "type": "configure", "name": "release" }, { "type": "build", "name": "release" }, { "type": "test", "name": "release" } ] },
+    { "name": "ci-gcc", "steps": [ { "type": "configure", "name": "ci-gcc" }, { "type": "build", "name": "ci-gcc" }, { "type": "test", "name": "ci-gcc" } ] },
+    { "name": "ci-clang", "steps": [ { "type": "configure", "name": "ci-clang" }, { "type": "build", "name": "ci-clang" }, { "type": "test", "name": "ci-clang" } ] },
+    { "name": "ci-sanitize", "steps": [ { "type": "configure", "name": "ci-sanitize" }, { "type": "build", "name": "ci-sanitize" }, { "type": "test", "name": "ci-sanitize" } ] },
+    { "name": "ci-msvc", "steps": [ { "type": "configure", "name": "ci-msvc" }, { "type": "build", "name": "ci-msvc" }, { "type": "test", "name": "ci-msvc" } ] }
+  ]
+}

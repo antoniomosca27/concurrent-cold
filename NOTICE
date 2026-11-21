@@ -1,0 +1,21 @@
+Licensing scope
+
+Code. The MIT license in LICENSE applies to the source code: C++ sources,
+headers, CMake files, tests and scripts.
+
+Report and figures. The report manuscript, its figures and the written
+documentation are licensed under Creative Commons Attribution 4.0
+International (CC BY 4.0, https://creativecommons.org/licenses/by/4.0/).
+Copyright 2026 Antonio Mosca.
+
+Data. The inputs are works of the United States Government and are in the
+public domain in the United States:
+  - heating degree day forecasts and observations, NOAA Climate Prediction
+    Center (https://www.cpc.ncep.noaa.gov/);
+  - Weekly Natural Gas Storage Report data and documentation, U.S. Energy
+    Information Administration (https://www.eia.gov/), which asks users to
+    cite EIA as the source.
+Archived copies of the EIA release schedule were retrieved from the Internet
+Archive Wayback Machine (https://web.archive.org/). The frozen tables in
+data/frozen are transcriptions of these sources and carry no additional
+rights. See docs/DATA.md for provenance.

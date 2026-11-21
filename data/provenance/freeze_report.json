@@ -1,0 +1,110 @@
+{
+  "cutoff_date": "2026-11-20",
+  "eia": {
+    "five_region_latest": {
+      "as_of": "LATEST ESTIMATES (Bcf) AS OF NOVEMBER 19, 2026",
+      "weeks": [
+        "2010-01-01",
+        "2026-11-13",
+        881
+      ]
+    },
+    "original_five_region": [
+      "2015-06-19",
+      "2026-04-10",
+      565
+    ],
+    "original_rows_with_explanation": 77,
+    "original_three_region": [
+      "1993-12-31",
+      "2015-08-28",
+      1131
+    ],
+    "three_region_latest": {
+      "as_of": "LATEST ESTIMATES AS OF NOVEMBER 13, 2015",
+      "weeks": [
+        "1993-12-31",
+        "2015-11-06",
+        1141
+      ]
+    }
+  },
+  "eia_release_calendar": {
+    "changed_across_snapshots": [
+      "2019-06-28",
+      "2025-12-19"
+    ],
+    "exceptions": 45,
+    "first_week_in_scope": "2013-11-01",
+    "non_exception_table_rows_skipped": 102,
+    "not_confirmed_after_release": [
+      "2026-11-20",
+      "2027-11-05",
+      "2027-11-19"
+    ],
+    "pre_scope_rows_skipped": [
+      "2009-11-25 11/26/2009 (Thursday) is Thanksgiving Day",
+      "2010-11-10 11/11/2010 (Thursday) is Veteran's Day",
+      "2010-11-24 11/25/2010 (Thursday) is Thanksgiving Day",
+      "2011-11-23 11/24/2011 (Thursday) is Thanksgiving Day",
+      "2012-07-06 7/4/2012 (Wednesday) is Independence Day",
+      "2012-11-21 11/22/2012 (Thursday) is Thanksgiving Day",
+      "2012-12-28 12/25/2012 (Tuesday) is Christmas Day",
+      "2013-01-04 1/1/2013 (Tuesday) is New Year's Day",
+      "2013-07-03 7/4/2013 (Thursday) is Independence Day",
+      "2013-10-22 EIA Closed"
+    ],
+    "release_after_friday": [
+      "2025-12-19"
+    ],
+    "snapshots_parsed": 52,
+    "snapshots_with_exception_rows": 44,
+    "weeks": [
+      "2013-11-22",
+      "2027-11-19"
+    ]
+  },
+  "noaa_forecasts": {
+    "batch_rewrite_days": [
+      "2014-03-13",
+      "2019-07-08",
+      "2019-10-17",
+      "2020-04-12"
+    ],
+    "issue_dates": [
+      "2014-01-01",
+      "2026-11-20"
+    ],
+    "posting_counts": {
+      "batch_rewrite": 191,
+      "late": 1,
+      "same_day": 4450
+    },
+    "status_counts": {
+      "all_missing": 64,
+      "empty": 2,
+      "not_found": 65,
+      "ok": 4513,
+      "partial": 63
+    },
+    "total_column_mismatches": 0
+  },
+  "noaa_observed": {
+    "dates": [
+      "2013-01-01",
+      "2026-11-18"
+    ],
+    "n_days": 5070
+  },
+  "noaa_regions": {
+    "div1": "NEW ENGLAND",
+    "div2": "MIDDLE ATLANTIC",
+    "div3": "E N CENTRAL",
+    "div4": "W N CENTRAL",
+    "div5": "SOUTH ATLANTIC",
+    "div6": "E S CENTRAL",
+    "div7": "W S CENTRAL",
+    "div8": "MOUNTAIN",
+    "div9": "PACIFIC"
+  }
+}

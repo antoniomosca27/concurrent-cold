@@ -1,0 +1,23 @@
+# Build trees and local toolchain configuration
+/build/
+/CMakeUserPresets.json
+compile_commands.json
+
+# Python environment
+/.venv/
+__pycache__/
+*.py[cod]
+
+# Raw downloads: hashed in data/provenance/raw_manifest.jsonl, shipped with releases
+/data/raw/
+
+# Generated runs never overwrite each other and are not versioned
+/reports/runs/
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+*.tmp

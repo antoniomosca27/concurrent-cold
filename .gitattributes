@@ -1,0 +1,6 @@
+# Normalise text to LF so frozen data hash identically on every platform.
+* text=auto eol=lf
+*.xls binary
+*.zip binary
+*.png binary
+*.pdf binary

@@ -1,0 +1,36 @@
+{
+  "description": "Public inputs of concurrent-cold, frozen as of the cutoff date below.",
+  "cutoff_date": "2026-11-20",
+  "noaa": {
+    "forecast_first_issue": "2014-01-01",
+    "forecast_url": "https://ftp.cpc.ncep.noaa.gov/htdocs/degree_days/weighted/daily_forecasts_7day/{yyyy}/{mm}/{dd}/UtilityGas.Heating.txt",
+    "observed_first_year": 2013,
+    "observed_url": "https://ftp.cpc.ncep.noaa.gov/htdocs/degree_days/weighted/daily_data/{yyyy}/UtilityGas.Heating.txt",
+    "reference_files": {
+      "census_divisions": "https://ftp.cpc.ncep.noaa.gov/htdocs/degree_days/weighted/daily_data/regions/CensusDivisions.txt",
+      "states_to_divisions": "https://ftp.cpc.ncep.noaa.gov/htdocs/degree_days/weighted/daily_data/regions/StatesCONUS-CensusDivisions.txt"
+    }
+  },
+  "eia": {
+    "files": {
+      "ngshistory.xls": "https://ir.eia.gov/ngs/ngshistory.xls",
+      "revisions.xls": "https://ir.eia.gov/ngs/revisions.xls",
+      "archngshistory.xls": "https://ir.eia.gov/ngs/archngshistory.xls",
+      "archrevisions.xls": "https://ir.eia.gov/ngs/archrevisions.xls",
+      "schedule.html": "https://ir.eia.gov/ngs/schedule.html",
+      "methodology.html": "https://ir.eia.gov/ngs/methodology.html",
+      "revision_policy.html": "https://ir.eia.gov/ngs/revisions.html",
+      "notes.html": "https://ir.eia.gov/ngs/notes.html"
+    },
+    "calendar_first_week": "2013-11-01",
+    "schedule_wayback_cdx": "http://web.archive.org/cdx/search/cdx?url=ir.eia.gov/ngs/schedule.html&fl=timestamp,original,statuscode,digest&filter=statuscode:200&collapse=digest",
+    "schedule_wayback_raw": "http://web.archive.org/web/{timestamp}id_/{original}"
+  },
+  "http": {
+    "user_agent": "concurrent-cold-data-fetch/0.1 (reproducible research)",
+    "workers": 6,
+    "wayback_workers": 1,
+    "timeout_s": 60,
+    "retries": 3
+  }
+}
