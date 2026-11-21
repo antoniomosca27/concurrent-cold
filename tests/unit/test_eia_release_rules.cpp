@@ -11,8 +11,8 @@ using namespace ccold::time;
 namespace {
 Date d(const char* iso) { return parse_date(iso); }
 Instant utc(const char* iso) { return parse_utc(iso); }
-ReleaseException exception(const char* week, const char* day, int h, int m) {
-  return {d(week), local_at(d(day), h, m), "test"};
+ReleaseException exception(const char* week, const char* release_day, int h, int m) {
+  return {d(week), local_at(d(release_day), h, m), "test"};
 }
 }  // namespace
 

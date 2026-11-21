@@ -11,18 +11,18 @@ namespace {
 
 using namespace std::chrono;
 
-void check_year(int year) {
-  if (year < kFirstSupportedYear || year > kLastSupportedYear) {
-    throw std::out_of_range("US DST rule implemented for 2007-2099 only, got year " + std::to_string(year));
+void check_year(int y) {
+  if (y < kFirstSupportedYear || y > kLastSupportedYear) {
+    throw std::out_of_range("US DST rule implemented for 2007-2099 only, got year " + std::to_string(y));
   }
 }
 
 int parse_int(std::string_view s, std::string_view whole) {
   int value = 0;
   const auto* first = s.data();
-  const auto* last = s.data() + s.size();
-  const auto [ptr, ec] = std::from_chars(first, last, value);
-  if (ec != std::errc{} || ptr != last || s.empty()) {
+  const auto* end = s.data() + s.size();
+  const auto [ptr, ec] = std::from_chars(first, end, value);
+  if (ec != std::errc{} || ptr != end || s.empty()) {
     throw std::invalid_argument("malformed date/time: '" + std::string(whole) + "'");
   }
   return value;
@@ -85,11 +85,11 @@ Instant to_utc(LocalTime local, UsZone zone) {
   return standard_ok ? if_standard : if_daylight;
 }
 
-LocalTime local_at(Date day, int hour, int minute) {
+LocalTime local_at(Date d, int hour, int minute) {
   if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
     throw std::invalid_argument("invalid wall-clock time");
   }
-  return LocalTime{day.time_since_epoch()} + hours{hour} + minutes{minute};
+  return LocalTime{d.time_since_epoch()} + hours{hour} + minutes{minute};
 }
 
 Date parse_date(std::string_view s) {
@@ -120,10 +120,10 @@ std::string format_date(Date d) {
 
 namespace {
 std::string format_parts(sys_seconds t, const char* suffix) {
-  const auto day = floor<days>(t);
-  const hh_mm_ss<seconds> hms{t - day};
+  const auto midnight = floor<days>(t);
+  const hh_mm_ss<seconds> hms{t - midnight};
   std::array<char, 40> buf{};
-  std::snprintf(buf.data(), buf.size(), "%sT%02d:%02d:%02d%s", format_date(day).c_str(),
+  std::snprintf(buf.data(), buf.size(), "%sT%02d:%02d:%02d%s", format_date(midnight).c_str(),
                 static_cast<int>(hms.hours().count()), static_cast<int>(hms.minutes().count()),
                 static_cast<int>(hms.seconds().count()), suffix);
   return std::string(buf.data());

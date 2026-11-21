@@ -21,11 +21,11 @@ int two_digits(std::string_view s, std::string_view whole) {
   return (s[0] - '0') * 10 + (s[1] - '0');
 }
 
-LocalTime parse_hhmm(Date day, std::string_view hhmm) {
+LocalTime parse_hhmm(Date d, std::string_view hhmm) {
   if (hhmm.size() != 5 || hhmm[2] != ':') {
     throw std::invalid_argument("malformed HH:MM time '" + std::string(hhmm) + "'");
   }
-  return time::local_at(day, two_digits(hhmm.substr(0, 2), hhmm), two_digits(hhmm.substr(3, 2), hhmm));
+  return time::local_at(d, two_digits(hhmm.substr(0, 2), hhmm), two_digits(hhmm.substr(3, 2), hhmm));
 }
 
 }  // namespace

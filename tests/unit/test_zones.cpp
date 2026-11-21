@@ -9,7 +9,7 @@ using namespace ccold::time;
 
 namespace {
 Instant utc(const char* iso) { return parse_utc(iso); }
-LocalTime local(const char* day, int h, int m) { return local_at(parse_date(day), h, m); }
+LocalTime local(const char* iso, int h, int m) { return local_at(parse_date(iso), h, m); }
 }  // namespace
 
 TEST_CASE("DST transitions follow the post-2007 US rule", "[time]") {
@@ -45,8 +45,9 @@ TEST_CASE("UTC -> local -> UTC round-trips for every hour of a year", "[time][pr
     const Date overlap_day{year{2024} / November / Sunday[1]};
     for (Instant t = utc("2024-01-01T00:00:00Z"); t < end; t += hours{1}) {
       const LocalTime lt = to_local(t, zone);
-      const auto day = floor<days>(lt);
-      const bool ambiguous = day.time_since_epoch() == overlap_day.time_since_epoch() && (lt - day) / hours{1} == 1;
+      const auto midnight = floor<days>(lt);
+      const bool ambiguous =
+          midnight.time_since_epoch() == overlap_day.time_since_epoch() && (lt - midnight) / hours{1} == 1;
       if (ambiguous) {
         CHECK_THROWS(to_utc(lt, zone));
       } else {

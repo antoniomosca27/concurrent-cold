@@ -27,11 +27,11 @@ int usage() {
   return 2;
 }
 
-// Archive status of the bulletin issued on `day` (data/frozen/noaa_forecast_files.csv).
-std::string bulletin_status(const std::filesystem::path& data_dir, t::Date day) {
+// Archive status of the bulletin issued on `issue` (data/frozen/noaa_forecast_files.csv).
+std::string bulletin_status(const std::filesystem::path& data_dir, t::Date issue) {
   const auto files = ccold::io::CsvTable::read(data_dir / "noaa_forecast_files.csv");
   const auto c_date = files.column("issue_date");
-  const std::string iso = t::format_date(day);
+  const std::string iso = t::format_date(issue);
   for (std::size_t r = 0; r < files.rows(); ++r) {
     if (files.at(r, c_date) == iso) {
       std::string s = "archive status " + files.at(r, files.column("status"));

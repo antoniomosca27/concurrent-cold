@@ -7,6 +7,10 @@ on:
 permissions:
   contents: read
 
+# Build jobs keep their full output in build.log and, on failure, re-emit the
+# compiler and test errors as annotations: annotations are public, while the
+# raw job logs can only be downloaded by repository admins.
+
 jobs:
   frozen-data:
     name: frozen data hashes
@@ -18,13 +22,20 @@ jobs:
           python-version: "3.12"
       - run: python scripts/fetch_data.py verify
 
-  linux:
+  build:
     name: ${{ matrix.preset }}
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        preset: [ci-gcc, ci-clang, ci-sanitize]
+        include:
+          - { preset: ci-gcc, os: ubuntu-24.04 }
+          - { preset: ci-clang, os: ubuntu-24.04 }
+          - { preset: ci-sanitize, os: ubuntu-24.04 }
+          - { preset: ci-msvc, os: windows-latest }
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -33,17 +44,12 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - run: python -m pip install -r requirements-dev.txt
-      - run: cmake --workflow --preset ${{ matrix.preset }}
-
-  windows:
-    name: ci-msvc
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: requirements-dev.txt
-      - run: python -m pip install -r requirements-dev.txt
-      - run: cmake --workflow --preset ci-msvc
+      - name: configure, build and test
+        run: |
+          set -o pipefail
+          if ! cmake --workflow --preset ${{ matrix.preset }} 2>&1 | tee build.log; then
+            grep -E "error|warning C[0-9]+|FAILED|Failed|failed" build.log \
+              | grep -v -E "^\s*$" | head -n 10 \
+              | sed -e 's/%/%25/g' -e 's/^/::error title=${{ matrix.preset }}::/'
+            exit 1
+          fi

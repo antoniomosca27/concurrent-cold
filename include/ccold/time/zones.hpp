@@ -25,9 +25,9 @@ inline constexpr int kLastSupportedYear = 2099;
 
 [[nodiscard]] std::chrono::hours standard_offset(UsZone zone);  // -5h or -6h
 
-// UTC instants at which daylight saving time starts and ends in `year`.
-[[nodiscard]] Instant dst_start(int year, UsZone zone);
-[[nodiscard]] Instant dst_end(int year, UsZone zone);
+// UTC instants at which daylight saving time starts and ends in year `y`.
+[[nodiscard]] Instant dst_start(int y, UsZone zone);
+[[nodiscard]] Instant dst_end(int y, UsZone zone);
 
 [[nodiscard]] bool is_dst(Instant t, UsZone zone);
 [[nodiscard]] std::chrono::seconds utc_offset(Instant t, UsZone zone);
@@ -38,9 +38,10 @@ inline constexpr int kLastSupportedYear = 2099;
 // the data never needs them, so a silent choice would only hide a bug.
 [[nodiscard]] Instant to_utc(LocalTime local, UsZone zone);
 
-[[nodiscard]] LocalTime local_at(Date day, int hour, int minute);
+[[nodiscard]] LocalTime local_at(Date d, int hour, int minute);
 
-// ISO 8601 helpers: "2021-02-12", "2021-02-12T23:00:00Z", "2021-02-12 18:00".
+// ISO 8601 helpers: dates "2021-02-12", UTC instants "2021-02-12T23:00:00Z";
+// local times are formatted without zone suffix, "2021-02-12T18:00:00".
 [[nodiscard]] Date parse_date(std::string_view iso);
 [[nodiscard]] Instant parse_utc(std::string_view iso);
 [[nodiscard]] std::string format_date(Date d);
