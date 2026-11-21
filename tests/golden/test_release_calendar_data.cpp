@@ -3,7 +3,6 @@
 // docs/DATA.md; a failure means the reconstruction of the calendar changed.
 
 #include <catch2/catch_test_macros.hpp>
-
 #include <filesystem>
 #include <set>
 

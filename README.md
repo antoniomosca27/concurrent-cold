@@ -15,7 +15,8 @@ what modelling that dependence adds, in Bcf, to a probabilistic forecast that
 is already well calibrated at the national level — and, if the answer is
 "almost nothing", how tightly the data bound it.
 
-By **Antonio Mosca**. Status: **M0 (foundations)** — see [the roadmap](docs/ROADMAP.md).
+By **Antonio Mosca**. Status: **M1 (real-time information set)** done; next, the national
+benchmark and the scoring rules — see [the roadmap](docs/ROADMAP.md).
 
 ## The experiment
 
@@ -64,10 +65,24 @@ On Windows with MSVC use `cmake --workflow --preset ci-msvc`. A machine-specific
 toolchain goes in an untracked `CMakeUserPresets.json`.
 
 ```shell
-build/release/ccold availability 2021-02-12
+build/release/ccold availability 2021-02-12               # what was public on Friday 18:00 ET
+build/release/ccold dataset --out friday_dataset.csv      # one row per Friday, 2014-2026
 ```
 
-prints what was public at the forecast origin and when the target is released.
+`availability` prints the NOAA bulletin used (or the fallback), the 7-day
+forecast by division, the latest observation, the latest public EIA report and
+the target with its release time. Add `--strict` to refuse bulletins that NOAA
+rewrote after the fact. For the Winter Storm Uri week:
+
+```text
+Forecast origin 2021-02-12 18:00 ET = 2021-02-12T23:00:00Z
+  NOAA bulletin issued 2021-02-12T00:00Z: used (same day, dated 2021-02-12T15:00:54Z)
+  7-day HDD forecast, 2021-02-12 to 2021-02-18 (0 of 70 values missing):
+    div1=293 div2=286 div3=373 div4=453 div5=172 div6=224 div7=254 div8=253 div9=122 conus=272
+  observed HDD known through 2021-02-10
+  latest public EIA report: week ending 2021-02-05, 2518 Bcf, withdrawal 171 Bcf, released 2021-02-11T10:30:00 ET
+  target S(2021-02-12) - S(2021-02-19): first release 338 Bcf, latest 338 Bcf, public 2021-02-25T10:30:00 ET
+```
 
 ## Data
 
@@ -86,7 +101,7 @@ Raw responses are not versioned; their provenance is in
 ## Layout
 
 ```text
-include/ccold/   public headers (time, io, calendar; models and evaluation to come)
+include/ccold/   public headers: time, io, calendar, data loaders, real-time information set
 src/             library sources
 apps/ccold/      command-line interface
 tests/           unit, golden (real weeks) and property tests

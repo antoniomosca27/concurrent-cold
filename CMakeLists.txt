@@ -23,7 +23,11 @@ set(CCOLD_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data/frozen" CACHE PATH "Directo
 add_library(ccold_core
   src/time/zones.cpp
   src/io/csv.cpp
-  src/calendar/eia_release.cpp)
+  src/calendar/eia_release.cpp
+  src/data/regions.cpp
+  src/data/noaa.cpp
+  src/data/eia_storage.cpp
+  src/realtime/info_set.cpp)
 add_library(ccold::core ALIAS ccold_core)
 target_include_directories(ccold_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_compile_features(ccold_core PUBLIC cxx_std_20)

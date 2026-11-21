@@ -13,7 +13,7 @@
 
 namespace ccold::time {
 
-using Instant = std::chrono::sys_seconds;     // a point in time, UTC
+using Instant = std::chrono::sys_seconds;      // a point in time, UTC
 using LocalTime = std::chrono::local_seconds;  // wall-clock time, zone implied
 using Date = std::chrono::sys_days;            // civil date
 

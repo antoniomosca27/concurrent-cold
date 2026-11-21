@@ -92,10 +92,13 @@ real-time with a two-day lag.
   2015-11-13. The five-region "original" values for June–November 2015 are
   reallocations, not what was published at the time; first-release values
   before the switch come from the three-region files.
-- Revisions affect 194 weekly levels. On winter weekly changes, first release
-  and latest vintage differ in 102 weeks, by 3 Bcf or more in 24, by at most
-  10 Bcf. A 33-week restatement (2025-08-29 to 2026-04-10) lowered levels by
-  about 10 Bcf with little effect on weekly changes.
+- Revisions affect 194 weekly levels. Over the 259 winter issue Fridays of the
+  experiment, the first-release and latest-vintage targets differ in 37 weeks,
+  by 3 Bcf or more in 13 and by at most 5 Bcf; revisions mostly move volume
+  between adjacent weeks (for instance +5 and -5 Bcf on the weeks starting
+  2016-02-05 and 2016-02-12). A 33-week restatement (2025-08-29 to 2026-04-10)
+  lowered levels by about 10 Bcf with little effect on weekly changes. Some
+  weeks were revised twice (2026-03-27: 1,865, then 1,861, then 1,851 Bcf).
 - Not recoverable: intermediate vintages and unpublished revisions below the
   4 Bcf publication threshold. First-release targets are therefore
   pseudo-real-time to within a few Bcf.
@@ -126,6 +129,40 @@ copies include an "EIA Closed" entry for the October 2013 shutdown that does
 not identify the week, and the C++ calendar refuses earlier weeks. Unscheduled
 delays that never appeared on the schedule page cannot be recovered. One
 archived copy spells "Veterns Day"; the parser accepts it.
+
+## Information set and target (C++, `include/ccold/realtime/info_set.hpp`)
+
+At the origin, Friday `t` at 18:00 Eastern:
+
+- **Forecast.** Each of the 70 cells (10 regions x 7 days, `t` to `t+6`) takes
+  its value from the freshest usable bulletin, at most two days old. A
+  bulletin is usable if its file is dated before the origin; batch-rewritten
+  files are accepted only under `AcceptBatchRewrites` (assumed available from
+  16:00 UTC on their issue day) and flag the information set as
+  pseudo-real-time. A missing Friday file is thus replaced by Thursday's
+  bulletin, which covers six of the seven days.
+- **Observations**: days up to `t-2`.
+- **EIA**: the latest report released before the origin (normally the week
+  ending `t-7`), first-release level and the net withdrawal printed in that
+  report. Revisions are never used in real time, because when they became
+  public is not recorded.
+- **Target**: `S(t) - S(t+7)` from first releases, public when the report for
+  `t+7` comes out; the latest vintage is kept for checks. For `t = 2015-11-06`
+  the start level is the five-region restatement (3,985 Bcf) that the first
+  five-region report used, so the target is -15 Bcf rather than -22.
+- **Training targets** at an origin are those whose release time precedes it;
+  a property test checks every Friday from 2014 to 2026 under both policies.
+
+Winter issue Fridays (November to March, 2014/15 to 2025/26): 259, of which 247
+have a complete 70-cell forecast. The 12 incomplete ones are 2018-03-09,
+2018-12-28, 2022-11-04, 2022-11-11, 2022-12-30, 2023-12-29, 2024-01-12,
+2024-02-09 (last day missing), 2022-01-07, 2024-03-08 (two days missing),
+2018-11-02 and 2025-03-21 (no forecast: three consecutive `-9999` days). Under
+the strict policy the 13 Fridays of January–March 2020 also have no forecast
+(234 complete). The C++ pipeline reproduces the feasibility audit: on the 247
+complete Fridays, regressing the first-release target on the forecast
+national HDD and a trend gives 1.77 Bcf per HDD and a residual standard
+deviation of 26.2 Bcf (audit: 1.78 and 25.8 on a slightly different sample).
 
 ### Pseudo-real-time elements
 

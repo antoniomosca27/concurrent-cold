@@ -66,9 +66,7 @@ std::chrono::seconds utc_offset(Instant t, UsZone zone) {
   return standard_offset(zone) + (is_dst(t, zone) ? hours{1} : hours{0});
 }
 
-LocalTime to_local(Instant t, UsZone zone) {
-  return LocalTime{(t + utc_offset(t, zone)).time_since_epoch()};
-}
+LocalTime to_local(Instant t, UsZone zone) { return LocalTime{(t + utc_offset(t, zone)).time_since_epoch()}; }
 
 Instant to_utc(LocalTime local, UsZone zone) {
   const Instant as_if_utc{local.time_since_epoch()};

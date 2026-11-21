@@ -1,5 +1,4 @@
 #include <catch2/catch_test_macros.hpp>
-
 #include <stdexcept>
 
 #include "ccold/calendar/eia_release.hpp"
@@ -48,15 +47,15 @@ TEST_CASE("invalid exception tables are rejected", "[calendar]") {
   CHECK_THROWS_AS(EiaReleaseCalendar({exception("2013-10-11", "2013-10-22", 10, 30)}), std::invalid_argument);
   CHECK_THROWS_AS(EiaReleaseCalendar({exception("2025-12-18", "2025-12-24", 12, 0)}), std::invalid_argument);
   CHECK_THROWS_AS(EiaReleaseCalendar({exception("2025-12-19", "2025-12-22", 12, 0)}), std::invalid_argument);
-  CHECK_THROWS_AS(EiaReleaseCalendar({exception("2025-12-19", "2025-12-29", 12, 0),
-                                      exception("2025-12-19", "2025-12-30", 12, 0)}),
-                  std::invalid_argument);
+  CHECK_THROWS_AS(
+      EiaReleaseCalendar({exception("2025-12-19", "2025-12-29", 12, 0), exception("2025-12-19", "2025-12-30", 12, 0)}),
+      std::invalid_argument);
   // More than 11 days after the reference Friday.
   CHECK_THROWS_AS(EiaReleaseCalendar({exception("2025-12-19", "2026-01-01", 11, 0)}), std::invalid_argument);
   // Each row plausible on its own, but the later week would be published first.
-  CHECK_THROWS_AS(EiaReleaseCalendar({exception("2025-12-19", "2025-12-30", 12, 0),
-                                      exception("2025-12-26", "2025-12-30", 10, 0)}),
-                  std::invalid_argument);
+  CHECK_THROWS_AS(
+      EiaReleaseCalendar({exception("2025-12-19", "2025-12-30", 12, 0), exception("2025-12-26", "2025-12-30", 10, 0)}),
+      std::invalid_argument);
   // Spring-forward gap: 02:30 on 2026-03-08 does not exist in Eastern time.
   CHECK_THROWS_AS(EiaReleaseCalendar({exception("2026-02-27", "2026-03-08", 2, 30)}), std::invalid_argument);
 }

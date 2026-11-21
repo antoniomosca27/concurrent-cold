@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -30,5 +31,9 @@ class CsvTable {
   std::vector<std::string> header_;
   std::vector<std::vector<std::string>> rows_;
 };
+
+// Strict field conversions; `context` names the file and column in errors.
+[[nodiscard]] int to_int(std::string_view field, std::string_view context);
+[[nodiscard]] std::optional<int> to_optional_int(std::string_view field, std::string_view context);  // "" -> empty
 
 }  // namespace ccold::io

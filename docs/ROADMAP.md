@@ -60,6 +60,10 @@ models, seeds derived from (base seed, issue date, model).
 - Live winter: 2026/27, forecasts logged every Friday by a frozen model.
 - Estimation is expanding-window and uses only information released before
   each origin.
+- Evaluation weeks: winter Fridays whose information set has all 70 forecast
+  cells under `AcceptBatchRewrites` (247 of 259; the same weeks for every
+  model). Robustness: the strict policy (234 weeks) and the exclusion of the
+  2020 rewritten bulletins.
 - Scores: CRPS (primary), pinball loss at the 90% quantile (primary for large
   withdrawals), threshold-weighted CRPS above the 80th percentile of the
   development-winter target (secondary), PIT and 90% quantile coverage.
@@ -88,3 +92,6 @@ models, seeds derived from (base seed, issue date, model).
 ## Changelog
 
 - 2026-11-21: initial design.
+- 2026-11-21 (M1): evaluation restricted to Fridays with a complete
+  information set, decided before any model exists; target vintage at the
+  2015 structure switch defined in docs/DATA.md.

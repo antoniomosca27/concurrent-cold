@@ -1,5 +1,6 @@
 #include "ccold/io/csv.hpp"
 
+#include <charconv>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -112,6 +113,24 @@ CsvTable CsvTable::parse(std::string_view text, std::string source) {
     table.rows_.push_back(std::move(records[r]));
   }
   return table;
+}
+
+int to_int(std::string_view field, std::string_view context) {
+  int value = 0;
+  const char* first = field.data();
+  const char* end = field.data() + field.size();
+  const auto [ptr, ec] = std::from_chars(first, end, value);
+  if (field.empty() || ec != std::errc{} || ptr != end) {
+    throw std::runtime_error(std::string(context) + ": not an integer: '" + std::string(field) + "'");
+  }
+  return value;
+}
+
+std::optional<int> to_optional_int(std::string_view field, std::string_view context) {
+  if (field.empty()) {
+    return std::nullopt;
+  }
+  return to_int(field, context);
 }
 
 std::size_t CsvTable::column(std::string_view name) const {

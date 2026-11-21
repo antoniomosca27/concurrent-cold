@@ -19,8 +19,8 @@
 namespace ccold::calendar {
 
 struct ReleaseException {
-  time::Date week_ending;       // Friday the stocks refer to
-  time::LocalTime release_et;   // Eastern wall-clock release time
+  time::Date week_ending;      // Friday the stocks refer to
+  time::LocalTime release_et;  // Eastern wall-clock release time
   std::string holiday;
 };
 
